@@ -3,7 +3,9 @@ from __future__ import print_function
 import tensorflow as tf
 from mvpa2.suite import *
 import numpy as np
+import os 
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
 subjpath = os.path.join('/home/arash/Desktop/Dropbox/2017-Spring/CS464/Dataset/subj1')
 attrs = SampleAttributes(os.path.join(subjpath, 'labels.txt'),header=True)
 ds = fmri_dataset(samples=os.path.join(subjpath, 'bold.nii.gz'),
@@ -166,6 +168,10 @@ with tf.Session() as sess:
                   "{:.5f}".format(acc))
         step += 1
     print("Optimization Finished!")
+
+
+    # for saving the data to tensorboard
+    summary_writer = tf.summary.FileWriter(dir_path, graph=sess.graph)
 
     # Calculate accuracy for the test data
     test = np.append(np.ones((ds_test.samples.shape[0], n_input - ds_test.samples.shape[1])), ds_test.samples, axis=1)
