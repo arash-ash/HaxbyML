@@ -10,8 +10,8 @@ subjpath = os.path.join('/home/arash/Desktop/Dropbox/2017-Spring/CS464/Dataset/s
 attrs = SampleAttributes(os.path.join(subjpath, 'labels.txt'),header=True)
 ds = fmri_dataset(samples=os.path.join(subjpath, 'bold.nii.gz'),
                   targets=attrs.labels,
-                  chunks=attrs.chunks,
-                  mask=os.path.join(subjpath, 'mask4_vt.nii.gz'))
+                  chunks=attrs.chunks)
+#                  mask=os.path.join(subjpath, 'mask4_vt.nii.gz'))
 # preprocessing
 poly_detrend(ds, polyord=1, chunks_attr='chunks')
 zscore(ds, param_est=('targets', ['rest']), dtype='float32')
@@ -37,8 +37,32 @@ ds.targets = ds.targets.astype(int)
 # divides the 12 chucks into 6 and 6 subsets
 ds_train = ds[ds.chunks < 6]
 ds_test = ds[ds.chunks >= 6]
+del ds
 
-print(ds_train.shape)
+
+# Network Parameters
+n_input = 164025  
+#n_input = 163840 # data input 
+n_classes = 8 # fMRI total number of classes
+dropout = 0.75 # Dropout, probability to keep units
+
+# getting the data into shape
+train = np.append(np.ones((ds_train.samples.shape[0], n_input - 		ds_train.samples.shape[1])), ds_train.samples, axis=1)
+#train = ds_train.samples
+targets = ds_train.targets
+labels = np.zeros((ds_train.samples.shape[0], n_classes))
+for i in range(0, ds_train.samples.shape[0]):
+	labels[i, targets[i]] = 1
+
+del ds_train
+test = np.append(np.ones((ds_test.samples.shape[0], n_input - 	   			ds_test.samples.shape[1])), ds_test.samples, axis=1)
+#test = ds_test.samples
+test_targets = ds_test.targets
+test_labels = np.zeros((ds_test.samples.shape[0], n_classes))
+for i in range(0, ds_test.samples.shape[0]):
+	test_labels[i, test_targets[i]] = 1
+del ds_test
+
 
 # Parameters
 learning_rate = 0.01
@@ -46,11 +70,6 @@ training_iters = 10000
 batch_size = 300
 display_step = 1
 
-# Network Parameters
-n_input = 784 # data input (40*64*64 after masked)
-#n_input = 163840
-n_classes = 8 # fMRI total number of classes
-dropout = 0.75 # Dropout, probability to keep units
 
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, n_input])
@@ -75,7 +94,7 @@ def maxpool2d(x, k=2):
 # Create model
 def conv_net(x, weights, biases, dropout):
     # Reshape input picture
-    x = tf.reshape(x, shape=[-1, 28, 28, 1])
+    x = tf.reshape(x, shape=[-1, 405, 405, 1])
 
     # Convolution Layer
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
@@ -134,14 +153,6 @@ init = tf.global_variables_initializer()
 
 
 
-train = np.append(np.ones((ds_train.samples.shape[0], n_input - ds_train.samples.shape[1])), ds_train.samples, axis=1)
-#train = ds_train.samples
-
-targets = ds_train.targets
-labels = np.zeros((ds_train.samples.shape[0], n_classes))
-for i in range(0, ds_train.samples.shape[0]):
-	labels[i, targets[i]] = 1
-
 # Launch the graph
 with tf.Session() as sess:
     sess.run(init)
@@ -151,8 +162,8 @@ with tf.Session() as sess:
         # Shuffle the data
         perm = np.arange(train.shape[0])
         np.random.shuffle(perm)
-        ds_train.samples = train[perm]
-        ds_train.targets = labels[perm]
+        train = train[perm]
+        labels = labels[perm]
         # select next batch
         batch_x = train[0:batch_size]
         batch_y = labels[0:batch_size]
@@ -174,13 +185,6 @@ with tf.Session() as sess:
     summary_writer = tf.summary.FileWriter(dir_path, graph=sess.graph)
 
     # Calculate accuracy for the test data
-    test = np.append(np.ones((ds_test.samples.shape[0], n_input - ds_test.samples.shape[1])), ds_test.samples, axis=1)
-#    test = ds_test.samples
-
-    test_targets = ds_test.targets
-    test_labels = np.zeros((ds_test.samples.shape[0], n_classes))
-    for i in range(0, ds_test.samples.shape[0]):
-	test_labels[i, test_targets[i]] = 1
     print("Testing Accuracy:", \
 	sess.run(accuracy, feed_dict={x: test,
 			              y: test_labels,
