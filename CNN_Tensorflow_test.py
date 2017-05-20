@@ -47,7 +47,7 @@ n_classes = 8 # fMRI total number of classes
 dropout = 0.75 # Dropout, probability to keep units
 
 # getting the data into shape
-train = np.append(np.ones((ds_train.samples.shape[0], n_input - 		ds_train.samples.shape[1])), ds_train.samples, axis=1)
+train = np.append(np.ones((ds_train.samples.shape[0], n_input - ds_train.samples.shape[1])), ds_train.samples, axis=1)
 #train = ds_train.samples
 targets = ds_train.targets
 labels = np.zeros((ds_train.samples.shape[0], n_classes))
@@ -55,7 +55,7 @@ for i in range(0, ds_train.samples.shape[0]):
 	labels[i, targets[i]] = 1
 
 del ds_train
-test = np.append(np.ones((ds_test.samples.shape[0], n_input - 	   			ds_test.samples.shape[1])), ds_test.samples, axis=1)
+test = np.append(np.ones((ds_test.samples.shape[0], n_input - ds_test.samples.shape[1])), ds_test.samples, axis=1)
 #test = ds_test.samples
 test_targets = ds_test.targets
 test_labels = np.zeros((ds_test.samples.shape[0], n_classes))
@@ -66,8 +66,8 @@ del ds_test
 
 # Parameters
 learning_rate = 0.01
-training_iters = 10000
-batch_size = 300
+training_iters = 10
+batch_size = 2
 display_step = 1
 
 
@@ -180,12 +180,16 @@ with tf.Session() as sess:
         step += 1
     print("Optimization Finished!")
 
-
+	
+    del train
+    del labels
     # for saving the data to tensorboard
-    summary_writer = tf.summary.FileWriter(dir_path, graph=sess.graph)
+    #summary_writer = tf.summary.FileWriter(dir_path, graph=sess.graph)
 
     # Calculate accuracy for the test data
     print("Testing Accuracy:", \
 	sess.run(accuracy, feed_dict={x: test,
 			              y: test_labels,
 			              keep_prob: 1.}))
+    del test
+    del test_labels
