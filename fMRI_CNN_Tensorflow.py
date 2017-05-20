@@ -144,7 +144,8 @@ for i in range(100):
     print("step %d, training accuracy %g"%(i, train_accuracy))
     train_step.run(feed_dict={x: batch_x, y_: batch_y, keep_prob: 0.5})
 
-# for saving the data to tensorboard
+# for saving the data to tensorboard.
+saver = tf.train.Saver()
 summary_writer = tf.summary.FileWriter(dir_path, graph=sess.graph)
 saver.save(sess, 'my_trained_model')
 
