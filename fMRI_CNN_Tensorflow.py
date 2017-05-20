@@ -146,7 +146,7 @@ for i in range(1): # change 1 back to 100
 # for saving the data to tensorboard.
 summary_writer = tf.summary.FileWriter(os.path.join(dir_path, 'plots'), graph=sess.graph)
 saver = tf.train.Saver()
-saver.save(sess, "/TrainedModel/model")
+saver.save(sess, "/TrainedModel/model.ckpt")
 
 # load the test data
 x_test = np.loadtxt("/home/arash/Dropbox/2017-Spring/CS464/Project/data/subj1/test.txt")
