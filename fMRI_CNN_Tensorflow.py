@@ -3,65 +3,14 @@
 # Reference: https://www.tensorflow.org/get_started/mnist/pros, http://blog.naver.com/kjpark79/220783765651
 # Adjust needed for your dataset e.g., max pooling, convolution parameters, training_step, batch size, etc
 
-from __future__ import print_function
 import tensorflow as tf
-from mvpa2.suite import *
 import numpy as np
-import os 
 
 
 width = 40
 height = 64
 depth = 64
 nLabel = 8
-
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-subjpath = os.path.join('/home/arash/Desktop/Dropbox/2017-Spring/CS464/Dataset/subj1')
-attrs = SampleAttributes(os.path.join(subjpath, 'labels.txt'),header=True)
-ds = fmri_dataset(samples=os.path.join(subjpath, 'bold.nii.gz'),
-                  targets=attrs.labels,
-                  chunks=attrs.chunks)
-#                  mask=os.path.join(subjpath, 'mask4_vt.nii.gz'))
-# preprocessing
-poly_detrend(ds, polyord=1, chunks_attr='chunks')
-zscore(ds, param_est=('targets', ['rest']), dtype='float32')
-
-# delete rest samples
-interesting = np.array([i in ['scissors', 'face', 'cat', 'shoe', 'house', 'scrambledpix', 'bottle', 'chair'] for i in ds.sa.targets])
-ds = ds[interesting]
-
-# extracts the label vector and assigns integers instead of class labels
-ds.targets[ds.targets=='scissors'] = 0
-ds.targets[ds.targets=='face'] = 1
-ds.targets[ds.targets=='cat'] = 2
-ds.targets[ds.targets=='shoe'] = 3
-ds.targets[ds.targets=='house'] = 4
-ds.targets[ds.targets=='scrambledpix'] = 5
-ds.targets[ds.targets=='bottle'] = 6
-ds.targets[ds.targets=='chair'] = 7
-ds.targets = ds.targets.astype(int)
-
-
-
-# partition the dataset
-# divides the 12 chucks into 6 and 6 subsets
-ds_train = ds[ds.chunks < 6]
-ds_test = ds[ds.chunks >= 6]
-del ds
-
-# create one hot encoding of train and test labels
-train_labels_onehot = np.zeros((ds_train.samples.shape[0], nLabel))
-for i in range(0, ds_train.samples.shape[0]):
-	train_labels_onehot[i, ds_train.targets[i]] = 1
-
-test_labels_onehot = np.zeros((ds_test.samples.shape[0], nLabel))
-for i in range(0, ds_test.samples.shape[0]):
-	test_labels_onehot[i, ds_test.targets[i]] = 1
-
-
-
-
 
 
 
@@ -162,27 +111,41 @@ train_step = tf.train.AdamOptimizer(1e-3).minimize(cross_entropy)  # 1e-4
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-sess.run(tf.global_variables_initializer())
 
+
+
+# load the train data
+x_train = np.loadtxt("/home/arash/Dropbox/2017-Spring/CS464/Project/data/subj1/train.txt")
+y_train = np.loadtxt("/home/arash/Dropbox/2017-Spring/CS464/Project/data/subj1/trainLabels.txt")
+
+print(x_train.shape)
+print(y_train.shape)
+
+# run the CNN
 batch_size = 10
+sess.run(tf.global_variables_initializer())
 # Include keep_prob in feed_dict to control dropout rate.
 for i in range(100):
     # Shuffle the data
-    perm = np.arange(ds_train.samples.shape[0])
+    perm = np.arange(x_train.shape[0])
     np.random.shuffle(perm)
-    ds_train.samples = ds_train.samples[perm]
-    train_labels_onehot = train_labels_onehot[perm]
+    x_train = x_train[perm]
+    y_train = y_train[perm]
     # select next batch
-    batch_x = ds_train.samples[0:batch_size]
-    batch_y = train_labels_onehot[0:batch_size]
+    batch_x = x_train[0:batch_size]
+    batch_y = y_train[0:batch_size]
     # Logging every 100th iteration in the training process.
     #if i%5 == 0:
+
     train_accuracy = accuracy.eval(feed_dict={x:batch_x, y_: batch_y, keep_prob: 1.0})
     print("step %d, training accuracy %g"%(i, train_accuracy))
     train_step.run(feed_dict={x: batch_x, y_: batch_y, keep_prob: 0.5})
 
+# load the test data
+x_train = np.loadtxt("/home/arash/Dropbox/2017-Spring/CS464/Project/data/subj1/test.txt")
+y_train = np.loadtxt("/home/arash/Dropbox/2017-Spring/CS464/Project/data/subj1/testLabels.txt")
 # Evaulate our accuracy on the test data
-print("test accuracy %g"%accuracy.eval(feed_dict={x: ds_test.samples, y_: test_labels_onehot, keep_prob: 1.0}))
+print("test accuracy %g"%accuracy.eval(feed_dict={x: x_test, y_: y_test, keep_prob: 1.0}))
 
 
 
