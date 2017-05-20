@@ -3,9 +3,12 @@
 # Reference: https://www.tensorflow.org/get_started/mnist/pros, http://blog.naver.com/kjpark79/220783765651
 # Adjust needed for your dataset e.g., max pooling, convolution parameters, training_step, batch size, etc
 
+
 import tensorflow as tf
 import numpy as np
+import os 
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 width = 40
 height = 64
@@ -122,7 +125,7 @@ print(x_train.shape)
 print(y_train.shape)
 
 # run the CNN
-batch_size = 10
+batch_size = 20
 sess.run(tf.global_variables_initializer())
 # Include keep_prob in feed_dict to control dropout rate.
 for i in range(100):
@@ -140,6 +143,10 @@ for i in range(100):
     train_accuracy = accuracy.eval(feed_dict={x:batch_x, y_: batch_y, keep_prob: 1.0})
     print("step %d, training accuracy %g"%(i, train_accuracy))
     train_step.run(feed_dict={x: batch_x, y_: batch_y, keep_prob: 0.5})
+
+# for saving the data to tensorboard
+summary_writer = tf.summary.FileWriter(dir_path, graph=sess.graph)
+saver.save(sess, 'my_trained_model')
 
 # load the test data
 x_train = np.loadtxt("/home/arash/Dropbox/2017-Spring/CS464/Project/data/subj1/test.txt")
