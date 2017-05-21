@@ -47,7 +47,15 @@ def max_pool_2x2(x):  # tf.nn.max_pool. ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1]
 
 
 
-
+# returns the next mini-batch
+def nextBatch(x, y):
+    	# Shuffle the data
+    	perm = np.arange(x.shape[0])
+    	np.random.shuffle(perm)
+    	x = x[perm]
+    	y = y[perm]
+    	# select next batch
+    	return x[0:batch_size], y[0:batch_size]
 
 
 
@@ -115,40 +123,35 @@ correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
+print('loading files...')
 f = file("./../data/subj1/data.bin","rb")
 x_train = np.load(f)
-print("training features: %d",x_train.shape)
+print('training features: ',x_train.shape)
 y_train = np.load(f)
-print("training labels: %d",y_train.shape)
+print('training labels: ',y_train.shape)
 # load the test data
 x_test = np.load(f)
-print("testing features: %d",x_test.shape)
+print('testing features: ',x_test.shape)
 y_test = np.load(f)
-print("testing labels: %d",y_test.shape)
+print('testing labels: ',y_test.shape)
 f.close()
 
 
 saver = tf.train.Saver()
 # run the CNN
-batch_size = 20 # change 1 back to 20
+batch_size = 10 # change 1 back to 20
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
   	# Restore variables from disk.
   	#saver.restore(sess, "./TrainedModel/model.ckpt")
   	#print("Model restored.")
 	# Include keep_prob in feed_dict to control dropout rate.
-	for i in range(10): # change 1 back to 100
-    		# Shuffle the data
-    		perm = np.arange(x_train.shape[0])
-    		np.random.shuffle(perm)
-    		x_train = x_train[perm]
-    		y_train = y_train[perm]
-    		# select next batch
-    		batch_x = x_train[0:batch_size]
-    		batch_y = y_train[0:batch_size]
+	for i in range(2): # change 1 back to 100
+		batch_x, batch_y = nextBatch(x_train, y_train)
     		train_accuracy = accuracy.eval(feed_dict={x:batch_x, y_: batch_y, keep_prob: 1.0})
     		print("step %d, training accuracy %g"%(i, train_accuracy))
     		train_step.run(feed_dict={x: batch_x, y_: batch_y, keep_prob: 0.5})
+
 	# for saving the model
 	saver.save(sess, "./TrainedModel/model.ckpt")
 	# for saving the graph to tensorboard.
@@ -157,7 +160,8 @@ with tf.Session() as sess:
 	del x_train
 	del y_train
 	# Evaulate our accuracy on the test data
-	print("test accuracy %g"%accuracy.eval(feed_dict={x: x_test, y_: y_test, keep_prob: 1.0}))
+	print("test accuracy %g"%accuracy.eval(feed_dict={x: x_test[0:10], y_: y_test[0:10], keep_prob: 1.0}))
+
 
 
 
