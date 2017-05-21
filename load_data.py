@@ -41,9 +41,9 @@ ds.targets = ds.targets.astype(int)
 
 
 # partition the dataset
-# divides the 12 chucks into 6 and 6 subsets
-ds_train = ds[ds.chunks < 6]
-ds_test = ds[ds.chunks >= 6]
+# divides the 12 chucks into 9 and 3 subsets
+ds_train = ds[ds.chunks < 9]
+ds_test = ds[ds.chunks >= 9]
 del ds
 
 # create one hot encoding of train and test labels
@@ -57,10 +57,14 @@ for i in range(0, ds_test.samples.shape[0]):
 
 
 # saves the files
-np.savetxt("./data/subj1/train.txt", ds_train, fmt='%d')
-np.savetxt("./data/subj1/trainLabels.txt", train_labels_onehot, fmt='%d')
+f = file("./../data/subj1/data.bin","wb")
+np.save(f,ds_train)
+np.save(f,train_labels_onehot)
+np.save(f,ds_test)
+np.save(f,test_labels_onehot)
+f.close()
 
-np.savetxt("./data/subj1/test.txt", ds_test, fmt='%d')
-np.savetxt("./data/subj1/testLabels.txt", test_labels_onehot, fmt='%d')
+
+
 
 
