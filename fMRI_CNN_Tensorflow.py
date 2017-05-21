@@ -56,7 +56,8 @@ def nextBatch(x, y):
 	return x[0:batch_size], y[0:batch_size]
 
 def writeOutput(s):
-	f = open("./Results/%s.txt"%timeStamp, "w")
+	f = open("./Results/%s.txt"%timeStamp, "a")
+	f.seek(0)
 	f.write(s)
 	f.close()
 
@@ -141,7 +142,7 @@ saver = tf.train.Saver()
 # run the CNN
 batch_size = 1 # change 1 back to 20
 with tf.Session() as sess:
-	####sess.run(tf.global_variables_initializer())
+	#######sess.run(tf.global_variables_initializer())
   	# Restore variables from disk.
   	saver.restore(sess, "./TrainedModel/model.ckpt")
   	print("Model restored and training started...")
