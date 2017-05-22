@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score
 
 
 print('loading files...')
-f = file("../data/subj1/data_masked_1Dy.bin","rb")
+f = file("../data/subj1/data.bin","rb")
 x_train = np.load(f)
 y_train = np.load(f).astype(int)
 # load the test data
@@ -22,14 +22,14 @@ f.close()
 
 C = 3.0  # SVM regularization parameter
 classifiers = []
-classifiers.append(svm.SVC(kernel='linear', C=C).fit(x_train, y_train))
-classifiers.append(svm.SVC(kernel='rbf', gamma=0.7, C=C).fit(x_train, y_train))
-classifiers.append(svm.SVC(kernel='poly', degree=3, C=C).fit(x_train, y_train))
+# classifiers.append(svm.SVC(kernel='linear', C=C).fit(x_train, y_train))
+# classifiers.append(svm.SVC(kernel='rbf', gamma=0.7, C=C).fit(x_train, y_train))
+# classifiers.append(svm.SVC(kernel='poly', degree=3, C=C).fit(x_train, y_train))
 classifiers.append(svm.LinearSVC(C=C).fit(x_train, y_train))
-for i in range(1, 10, 2):
-    classifiers.append(KNeighborsClassifier(n_neighbors=i).fit(x_train, y_train))
-classifiers.append(tree.DecisionTreeClassifier().fit(x_train, y_train))
-classifiers.append(GaussianNB().fit(x_train, y_train))
+# for i in range(1, 10, 2):
+#     classifiers.append(KNeighborsClassifier(n_neighbors=i).fit(x_train, y_train))
+# classifiers.append(tree.DecisionTreeClassifier().fit(x_train, y_train))
+# classifiers.append(GaussianNB().fit(x_train, y_train))
 for i, clf in enumerate(classifiers):
     P = clf.predict(x_test)
     CM = confusion_matrix(y_test,P)

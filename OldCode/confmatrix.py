@@ -29,5 +29,5 @@ def plotConfMatrix(theMatrix,theClasses,title='The Confusion matrix',colorRange=
     # show what you plotted to the world
     plt.show()
 
-confmatrix = np.loadtxt('outputConfMatrix1.txt')
+confmatrix = np.loadtxt('outputConfMatrix3.txt')
 plotConfMatrix(confmatrix,['scissors','face','cat','shoe','house','scr.pix','bottle','chair'],"SVM with RBF kernel")

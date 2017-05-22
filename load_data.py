@@ -58,10 +58,10 @@ for i in range(0, ds_test.samples.shape[0]):
 
 # saves the files
 f = file("./../data/subj1/data.bin","wb")
-np.save(f,ds_train)
-np.save(f,train_labels_onehot)
-np.save(f,ds_test)
-np.save(f,test_labels_onehot)
+np.save(f,ds_train.samples)
+np.save(f,ds_train.targets)
+np.save(f,ds_test.samples)
+np.save(f,ds_test.targets)
 f.close()
 
 

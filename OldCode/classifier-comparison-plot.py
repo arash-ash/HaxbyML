@@ -1,15 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt; plt.rcdefaults()
 
-accuracies = (9, 91, 90, 82, 76, 72, 66, 56, 24, 51)
+accuracies = (78, 41, 52, 41, 45, 47, 45, 50, 40, 48)
 
-objects = ('RbfSVM', 'LinSVM',  'PolySVM', '1-kNN', '3-kNN', '5-kNN', '7-kNN', '9-kNN', 'DTree', 'NBayes')
+objects = ('LinSVM', 'RbfSVM', 'PolySVM', '1-kNN', '3-kNN', '5-kNN', '7-kNN', '9-kNN', 'DTree', 'NBayes')
 y_pos = np.arange(len(objects)) - 1
 
 
-plt.bar(y_pos, accuracies, align='center', alpha=0.2)
+plt.bar(y_pos, accuracies, align='center', alpha=0.4)
 plt.xticks(y_pos , objects)
-plt.ylabel('Accuracies')
+plt.ylabel('Test Accuracies')
 plt.title('Accuracies vs Classifiers')
 
 plt.show()
