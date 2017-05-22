@@ -14,7 +14,7 @@ width = 40
 height = 64
 depth = 64
 nLabel = 8
-
+learning_rate = 1e-2
 timeStamp = strftime("%Y-%m-%d %H:%M:%S", gmtime())
 
 # Start TensorFlow InteractiveSession
@@ -119,7 +119,7 @@ y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 ## Train and Evaluate the Model
 # set up for optimization (optimizer:ADAM)
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
-train_step = tf.train.AdamOptimizer(1e-3).minimize(cross_entropy)  # 1e-4
+train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cross_entropy)  
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 print
@@ -140,32 +140,32 @@ f.close()
 
 saver = tf.train.Saver()
 # run the CNN
-batch_size = 1 # change 1 back to 20
+batch_size = 20 # change 1 back to 20
 with tf.Session() as sess:
 	#######sess.run(tf.global_variables_initializer())
   	# Restore variables from disk.
   	saver.restore(sess, "./TrainedModel/model.ckpt")
   	print("Model restored and training started...")
 	# Include keep_prob in feed_dict to control dropout rate.
-	for i in range(3): # change 1 back to 100
+	for i in range(91): # change 1 back to 100
 		batch_x, batch_y = nextBatch(x_train, y_train)
 		train_accuracy = accuracy.eval(feed_dict={x:batch_x, y_: batch_y, keep_prob: 1.0})
 		print("step %d, training acc: %g"%(i, train_accuracy))
 		writeOutput("step %d, training acc: %g \n"%(i, train_accuracy))
 
 
-		if i % 2 == 0:
+		if i % 10 == 0:
 			# Evaulate our accuracy on the test data
-			test_accuracy = accuracy.eval(feed_dict={x: x_test[0:1], y_: y_test[0:1], keep_prob: 1.0})
+			test_accuracy = accuracy.eval(feed_dict={x: x_test[0:20], y_: y_test[0:20], keep_prob: 1.0})
 			print("test acc: %g"%test_accuracy)
 			writeOutput("test acc: %g \n"%test_accuracy)
 
-		train_step.run(feed_dict={x: batch_x, y_: batch_y, keep_prob: 0.9})	
+		train_step.run(feed_dict={x: batch_x, y_: batch_y, keep_prob: 0.8})	
 
 	# for saving the model
-	saver.save(sess, "./TrainedModel/model.ckpt")
+	saver.save(sess, "./TrainedModel/model.ckpt")	
 
-	
-
+# for saving the graph to tensorboard	
+summary_writer = tf.summary.FileWriter('./Logs', graph=sess.graph)
 
 
