@@ -46,22 +46,22 @@ ds_train = ds[ds.chunks < 9]
 ds_test = ds[ds.chunks >= 9]
 del ds
 
-# create one hot encoding of train and test labels
-train_labels_onehot = np.zeros((ds_train.samples.shape[0], nLabel))
-for i in range(0, ds_train.samples.shape[0]):
-	train_labels_onehot[i, ds_train.targets[i]] = 1
+# # create one hot encoding of train and test labels
+# train_labels_onehot = np.zeros((ds_train.samples.shape[0], nLabel))
+# for i in range(0, ds_train.samples.shape[0]):
+# 	train_labels_onehot[i, ds_train.targets[i]] = 1
 
-test_labels_onehot = np.zeros((ds_test.samples.shape[0], nLabel))
-for i in range(0, ds_test.samples.shape[0]):
-	test_labels_onehot[i, ds_test.targets[i]] = 1
+# test_labels_onehot = np.zeros((ds_test.samples.shape[0], nLabel))
+# for i in range(0, ds_test.samples.shape[0]):
+# 	test_labels_onehot[i, ds_test.targets[i]] = 1
 
 
 # saves the files
-f = file("./../data/subj1/data_masked.bin","wb")
-np.save(f,ds_train)
-np.save(f,train_labels_onehot)
-np.save(f,ds_test)
-np.save(f,test_labels_onehot)
+f = file("./../data/subj1/data_masked_1Dy.bin","wb")
+np.save(f,ds_train.samples)
+np.save(f,ds_train.targets)
+np.save(f,ds_test.samples)
+np.save(f,ds_test.targets)
 f.close()
 
 

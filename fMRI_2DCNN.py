@@ -7,7 +7,7 @@ import numpy as np
 n_input = 625  
 #n_input = 163840 # data input 
 n_classes = 8 # fMRI total number of classes
-dropout = 0.5 # Dropout, probability to keep units
+dropout = 0.9 # Dropout, probability to keep units
 learning_rate = 0.001
 training_iters = 10000000
 batch_size = 100
@@ -144,10 +144,10 @@ with tf.Session() as sess:
                           y: y_test,
                           keep_prob: 1.})
 
-            print("Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
-                  "{:.2f}".format(loss) + ", Training Accuracy= " + \
-                  "{:.2f}".format(acc*100) + ", Testing Accuracy:" + \
-                  "{:.2f}".format(test_acc*100))
+            # print("Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
+            #       "{:.2f}".format(loss) + ", Training Accuracy= " + \
+            #       "{:.2f}".format(acc*100) + ", Testing Accuracy:" + \
+            #       "{:.2f}".format(test_acc*100))
 
             index = step/display_step - 1
             logs[index,0] = step*batch_size
