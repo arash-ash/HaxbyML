@@ -9,7 +9,7 @@ n_input = 625
 n_classes = 8 # fMRI total number of classes
 dropout = 0.5 # Dropout, probability to keep units
 learning_rate = 0.001
-training_iters = 1000000
+training_iters = 10000000
 batch_size = 100
 display_step = 10
 
@@ -124,6 +124,7 @@ init = tf.global_variables_initializer()
 
 
 
+logs = np.zeros((training_iters/(batch_size*display_step), 4))
 # Launch the graph
 with tf.Session() as sess:
     sess.run(init)
@@ -138,20 +139,28 @@ with tf.Session() as sess:
             loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x,
                                                               y: batch_y,
                                                               keep_prob: 1.})
-            print("Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
-                  "{:.6f}".format(loss) + ", Training Accuracy= " + \
-                  "{:.5f}".format(acc))
-               # Calculate accuracy for the test data
-            print("Testing Accuracy:", \
-            sess.run(accuracy, feed_dict={x: x_test,
+            # Calculate accuracy for the test data
+            test_acc = sess.run(accuracy, feed_dict={x: x_test,
                           y: y_test,
-                          keep_prob: 1.}))
+                          keep_prob: 1.})
+
+            print("Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
+                  "{:.2f}".format(loss) + ", Training Accuracy= " + \
+                  "{:.2f}".format(acc*100) + ", Testing Accuracy:" + \
+                  "{:.2f}".format(test_acc*100))
+
+            index = step/display_step - 1
+            logs[index,0] = step*batch_size
+            logs[index,1] = loss
+            logs[index,2] = acc*100
+            logs[index,3] = test_acc*100
         step += 1
     print("Optimization Finished!")
 
 
 
- 
+np.savetxt("./Logs/logs0.txt", logs, fmt='%.2f')
 
-    # for saving the graph to tensorboard   
-    summary_writer = tf.summary.FileWriter('./Logs', graph=sess.graph)
+
+# for saving the graph to tensorboard   
+summary_writer = tf.summary.FileWriter('./Logs', graph=sess.graph)
